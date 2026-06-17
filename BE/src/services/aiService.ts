@@ -34,25 +34,34 @@ async function generateText(prompt: string): Promise<string> {
 }
 
 export async function analyzeCV(cvText: string, jobDescription: string): Promise<AnalysisResponse> {
-  const prompt = `You are an expert career coach and HR professional. Analyze this CV against the job description.
+  const prompt = `You are an expert career coach and HR professional. Analyze this CV and job posting thoroughly.
 
 CV:
 ${cvText.slice(0, 8000)}
 
-Job Description:
+Job Posting:
 ${jobDescription.slice(0, 4000)}
+
+Instructions:
+- Analyze the candidate's CV against the full job posting
+- Calculate a fit score (0-100) based on skill match, experience level, and requirements
+- Explain clearly why the candidate is a good fit or not a good fit
+- Identify missing skills the candidate would need to learn
+- Detect risk signals in the job posting itself (e.g. salary seems unrealistic for the role, vague requirements, suspicious urgency, weak company description, too many requirements for the level). NEVER call any company a scam. Only classify risk as low / medium / high.
+- Suggest specific CV improvements the candidate should make before applying
+- Generate 10 must-know interview questions the candidate should prepare for this specific role
 
 Return a JSON object with:
 {
   "fitScore": <number 0-100>,
-  "fitSummary": "1-2 sentence overall assessment",
-  "strengths": ["skill or experience that matches well", ...],
-  "weaknesses": ["area where candidate falls short", ...],
-  "missingSkills": ["important skill completely missing", ...],
+  "fitSummary": "detailed explanation of why the candidate fits or does not fit, including specific reasoning",
+  "strengths": ["specific matching skill or experience", ...],
+  "weaknesses": ["specific area where candidate falls short", ...],
+  "missingSkills": ["important skill completely missing from CV", ...],
   "riskLevel": "low" | "medium" | "high",
-  "riskSignals": ["red flags or concerns in the application", ...],
-  "cvImprovements": ["specific suggestion to improve the CV", ...],
-  "mustKnowQuestions": ["key question the candidate should prepare for", ...]
+  "riskSignals": ["specific concern about the job posting (e.g. salary range seems inflated for this role)", ...],
+  "cvImprovements": ["specific, actionable change to make to the CV before applying", ...],
+  "mustKnowQuestions": ["essential interview question for this specific role", ...]
 }`;
 
   return JSON.parse(cleanJSON(await generateJSON(prompt)));
@@ -80,19 +89,33 @@ Each week should have 3-5 topics and 2-3 resources. Make URLs realistic (use com
   return JSON.parse(cleanJSON(await generateJSON(prompt)));
 }
 
-export async function generateQuestions(jobDescription: string, count: number): Promise<string[]> {
-  const prompt = `You are a technical interviewer for the role described below. Generate exactly ${count} interview questions following these RULES:
+export async function generateQuestions(
+  jobDescription: string,
+  cvText: string,
+  missingSkills: string[],
+  count: number
+): Promise<string[]> {
+  const missing = missingSkills.length ? `\nCandidate's missing skills to assess: ${missingSkills.join(', ')}` : '';
+  const prompt = `You are a technical interviewer. Generate exactly ${count} interview questions based on the following.
 
-1. Prioritize technical questions based on the candidate's tech stack (extracted from the job description)
-2. Prioritize job-required technical skills
+Candidate's CV/Experience:
+${cvText.slice(0, 3000)}
+${missing}
+
+Job Posting Requirements:
+${jobDescription.slice(0, 3000)}
+
+RULES:
+1. Prioritize questions based on the candidate's tech stack (from CV)
+2. Prioritize job-required technical skills (from job posting)
 3. Include JavaScript fundamentals questions
 4. Include React fundamentals questions
-5. Include problem-solving questions
-6. Include project deep-dive questions
-7. AVOID non-technical business-domain questions unless explicitly in the job description
-
-Job Description:
-${jobDescription.slice(0, 4000)}
+5. Include TypeScript questions
+6. Include API handling questions
+7. Include state management questions
+8. Include problem-solving questions
+9. Include project deep-dive questions
+10. AVOID generic business-domain questions unless explicitly in the job posting
 
 Return ONLY a JSON array of strings: ["question 1", "question 2", ...]`;
 
@@ -108,13 +131,29 @@ export async function mockReview(
 ): Promise<MockReviewResponse> {
   const qaPairs = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i] ?? '(no answer)'}`).join('\n\n');
 
-  const prompt = `You are a senior technical hiring manager. Evaluate the candidate's interview answers for the role below.
+  const prompt = `You are a senior technical hiring manager. Evaluate the candidate's interview answers.
 
-Job Description:
+Job Posting Requirements:
 ${jobDescription.slice(0, 3000)}
 
 Interview Q&A:
 ${qaPairs}
+
+For EACH question, evaluate:
+- score (1-10)
+- strengths of the answer
+- weaknesses of the answer
+- ideal/ model answer
+- specific improvement suggestion
+
+Then for overall evaluation, provide:
+- overall technical score (0-100)
+- communication score (0-100) — clarity, structure, articulation
+- confidence score (0-100) — certainty, decisiveness, leadership tone
+- overall strengths
+- overall weaknesses
+- hiring recommendation (Strong Yes / Yes / Maybe / No / Strong No)
+- senior engineer simulated feedback — a detailed paragraph as if written by a senior engineer reviewing this candidate, covering technical depth, communication style, and growth potential
 
 Return a JSON object with:
 {
@@ -131,6 +170,9 @@ Return a JSON object with:
   ],
   "overall": {
     "totalScore": <number 0-100>,
+    "technicalScore": <number 0-100>,
+    "communicationScore": <number 0-100>,
+    "confidenceScore": <number 0-100>,
     "strengths": ["overall strength across all answers", ...],
     "weaknesses": ["overall weakness across all answers", ...],
     "hiringRecommendation": "Strong Yes" | "Yes" | "Maybe" | "No" | "Strong No",

@@ -3,11 +3,13 @@ import { startInterview, answerInterview } from '../services/api';
 
 interface MockInterviewProps {
   jobDescription: string;
+  cvText: string;
+  missingSkills: string[];
   onBack: () => void;
   onComplete: (questions: string[], answers: string[]) => void;
 }
 
-export default function MockInterview({ jobDescription, onBack, onComplete }: MockInterviewProps) {
+export default function MockInterview({ jobDescription, cvText, missingSkills, onBack, onComplete }: MockInterviewProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -29,7 +31,7 @@ export default function MockInterview({ jobDescription, onBack, onComplete }: Mo
     setLoading(true);
     setError('');
     try {
-      const result = await startInterview(jobDescription);
+      const result = await startInterview(jobDescription, cvText, missingSkills);
       setSessionId(result.sessionId);
       setQuestions([result.question]);
       setCurrentQ(0);

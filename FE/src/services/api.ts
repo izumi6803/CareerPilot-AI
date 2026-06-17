@@ -32,11 +32,11 @@ export async function generateRoadmap(missingSkills: string[], jobTitle: string)
   }));
 }
 
-export async function startInterview(jobDescription: string): Promise<InterviewStartResponse> {
+export async function startInterview(jobDescription: string, cvText: string, missingSkills: string[]): Promise<InterviewStartResponse> {
   return handleResponse(await fetch(`${BASE}/interview/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jobDescription }),
+    body: JSON.stringify({ jobDescription, cvText, missingSkills }),
   }));
 }
 

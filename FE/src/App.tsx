@@ -84,7 +84,7 @@ export default function App() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <div className="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-gray-600">
-            {step === 'analysis' ? 'Analyzing your CV against the job description...' :
+            {step === 'analysis' ? 'Analyzing your CV against the job posting...' :
              step === 'roadmap' ? 'Generating your learning roadmap...' :
              step === 'final-review' ? 'Evaluating your interview answers...' :
              'Processing...'}
@@ -141,6 +141,8 @@ export default function App() {
         return (
           <MockInterview
             jobDescription={jobDescription}
+            cvText={cvText}
+            missingSkills={analysis?.missingSkills ?? []}
             onBack={() => setStep(roadmap ? 'roadmap' : 'analysis')}
             onComplete={handleInterviewComplete}
           />

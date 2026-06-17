@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { analyzeCV, generateRoadmap, mockReview } from '../services/openai.js';
+import { analyzeCV, generateRoadmap, mockReview } from '../services/aiService.js';
 import type { AnalysisRequest, RoadmapRequest, MockReviewRequest } from '../types/index.js';
 
 const router = Router();

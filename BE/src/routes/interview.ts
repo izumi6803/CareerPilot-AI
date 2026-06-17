@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import crypto from 'crypto';
-import { generateQuestions } from '../services/openai.js';
+import { generateQuestions } from '../services/aiService.js';
 import type { InterviewSession, InterviewStartResponse, InterviewAnswerResponse } from '../types/index.js';
 
 const router = Router();
@@ -16,13 +16,13 @@ setInterval(() => {
 
 router.post('/start', async (req, res) => {
   try {
-    const { jobDescription } = req.body as { jobDescription: string };
+    const { jobDescription, cvText, missingSkills } = req.body as { jobDescription: string; cvText?: string; missingSkills?: string[] };
     if (!jobDescription) {
       res.status(400).json({ error: 'jobDescription is required' });
       return;
     }
 
-    const questions = await generateQuestions(jobDescription, 10);
+    const questions = await generateQuestions(jobDescription, cvText ?? '', missingSkills ?? [], 10);
     const sessionId = crypto.randomUUID();
 
     const session: InterviewSession & { _createdAt: number } = {

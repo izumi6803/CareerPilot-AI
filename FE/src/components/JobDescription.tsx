@@ -8,13 +8,13 @@ interface JobDescriptionProps {
 export default function JobDescription({ value, onChange, onBack, onNext }: JobDescriptionProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Job Description</h2>
-      <p className="text-gray-600 mb-6">Paste the job description you want to target.</p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Job Posting</h2>
+      <p className="text-gray-600 mb-6">Paste the full job posting you want to target.</p>
 
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Paste the full job description here..."
+        placeholder="Paste the full job posting here..."
         rows={14}
         className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
       />

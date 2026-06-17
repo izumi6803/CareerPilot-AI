@@ -46,6 +46,9 @@ export interface PerQuestionReview {
 
 export interface OverallReview {
   totalScore: number;
+  technicalScore: number;
+  communicationScore: number;
+  confidenceScore: number;
   strengths: string[];
   weaknesses: string[];
   hiringRecommendation: string;

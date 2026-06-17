@@ -58,6 +58,7 @@ export interface MockReviewRequest {
   jobDescription: string;
   questions: string[];
   answers: string[];
+  cvText?: string;
 }
 
 export interface PerQuestionReview {
@@ -72,6 +73,9 @@ export interface PerQuestionReview {
 
 export interface OverallReview {
   totalScore: number;
+  technicalScore: number;
+  communicationScore: number;
+  confidenceScore: number;
   strengths: string[];
   weaknesses: string[];
   hiringRecommendation: 'Strong Yes' | 'Yes' | 'Maybe' | 'No' | 'Strong No';

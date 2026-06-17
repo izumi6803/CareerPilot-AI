@@ -23,6 +23,21 @@ function recommendationColor(rec: string): string {
   return 'text-red-700 bg-red-50 border-red-200';
 }
 
+function ScoreBar({ label, score }: { label: string; score: number }) {
+  const color = score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-gray-600 w-36 shrink-0">{label}</span>
+      <div className="flex-1 bg-gray-200 rounded-full h-2.5">
+        <div className={`h-2.5 rounded-full ${color}`} style={{ width: `${score}%` }} />
+      </div>
+      <span className={`text-sm font-bold w-10 text-right ${score >= 70 ? 'text-green-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+        {score}
+      </span>
+    </div>
+  );
+}
+
 export default function FinalReview({ review, onRestart }: FinalReviewProps) {
   const { perQuestion, overall } = review;
 
@@ -41,6 +56,12 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
           <div className={`px-4 py-2 rounded-lg border text-sm font-medium ${recommendationColor(overall.hiringRecommendation)}`}>
             {overall.hiringRecommendation}
           </div>
+        </div>
+
+        <div className="space-y-2 mb-6">
+          <ScoreBar label="Technical Score" score={overall.technicalScore} />
+          <ScoreBar label="Communication Score" score={overall.communicationScore} />
+          <ScoreBar label="Confidence Score" score={overall.confidenceScore} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -68,7 +89,7 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <div className="bg-gray-50 rounded-lg p-4">
           <h3 className="font-semibold text-gray-800 mb-2">Senior Engineer Feedback</h3>
           <p className="text-sm text-gray-700 whitespace-pre-wrap">{overall.seniorFeedback}</p>
         </div>
@@ -96,7 +117,7 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
             </div>
 
             <div className="mb-3">
-              <p className="text-xs font-medium text-gray-400 mb-1">Ideal Answer</p>
+              <p className="text-xs font-medium text-indigo-500 mb-1">Ideal Answer</p>
               <div className="bg-indigo-50 rounded-lg px-3 py-2 text-sm text-indigo-800">
                 <p className="whitespace-pre-wrap">{item.idealAnswer}</p>
               </div>
