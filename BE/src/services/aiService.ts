@@ -50,6 +50,8 @@ Instructions:
 - Detect risk signals in the job posting itself (e.g. salary seems unrealistic for the role, vague requirements, suspicious urgency, weak company description, too many requirements for the level). NEVER call any company a scam. Only classify risk as low / medium / high.
 - Suggest specific CV improvements the candidate should make before applying
 - Generate 10 must-know interview questions the candidate should prepare for this specific role
+- Use the Decision Engine to recommend whether the candidate should APPLY_NOW, IMPROVE_FIRST, or AVOID_FOR_NOW based on fit score, risk, and evidence gaps. Provide a confidence level (high/medium/low) and a clear reason.
+- Use the Evidence Gap Engine to evaluate EACH skill in the job posting. For each skill, classify the candidate's proof as Strong (CV clearly demonstrates this skill), Medium (some evidence but not fully proven), Weak (little evidence), or Missing (no evidence at all). Include reasoning.
 
 Return a JSON object with:
 {
@@ -61,7 +63,15 @@ Return a JSON object with:
   "riskLevel": "low" | "medium" | "high",
   "riskSignals": ["specific concern about the job posting (e.g. salary range seems inflated for this role)", ...],
   "cvImprovements": ["specific, actionable change to make to the CV before applying", ...],
-  "mustKnowQuestions": ["essential interview question for this specific role", ...]
+  "mustKnowQuestions": ["essential interview question for this specific role", ...],
+  "decision": {
+    "action": "APPLY_NOW" | "IMPROVE_FIRST" | "AVOID_FOR_NOW",
+    "confidence": "high" | "medium" | "low",
+    "reason": "explanation for the decision"
+  },
+  "evidenceGaps": [
+    {"skill": "skill name", "strength": "Strong" | "Medium" | "Weak" | "Missing", "reason": "why this skill is or isn't proven by the CV"}
+  ]
 }`;
 
   return JSON.parse(cleanJSON(await generateJSON(prompt)));
@@ -93,14 +103,17 @@ export async function generateQuestions(
   jobDescription: string,
   cvText: string,
   missingSkills: string[],
-  count: number
+  count: number,
+  evidenceGaps?: { skill: string; strength: string; reason: string }[]
 ): Promise<string[]> {
   const missing = missingSkills.length ? `\nCandidate's missing skills to assess: ${missingSkills.join(', ')}` : '';
+  const gaps = evidenceGaps?.length ? `\nEvidence gaps (skills where CV lacks proof): ${evidenceGaps.map(g => `${g.skill} (${g.strength})`).join(', ')}` : '';
   const prompt = `You are a technical interviewer. Generate exactly ${count} interview questions based on the following.
 
 Candidate's CV/Experience:
 ${cvText.slice(0, 3000)}
 ${missing}
+${gaps}
 
 Job Posting Requirements:
 ${jobDescription.slice(0, 3000)}
@@ -108,14 +121,18 @@ ${jobDescription.slice(0, 3000)}
 RULES:
 1. Prioritize questions based on the candidate's tech stack (from CV)
 2. Prioritize job-required technical skills (from job posting)
-3. Include JavaScript fundamentals questions
-4. Include React fundamentals questions
-5. Include TypeScript questions
-6. Include API handling questions
+3. Include JavaScript fundamentals questions (closures, promises, event loop)
+4. Include React fundamentals questions (hooks, lifecycle, rendering)
+5. Include TypeScript questions (types, generics, utilities)
+6. Include API handling questions (REST, error handling, async)
 7. Include state management questions
-8. Include problem-solving questions
-9. Include project deep-dive questions
-10. AVOID generic business-domain questions unless explicitly in the job posting
+8. Include performance optimization questions
+9. Include async/event loop questions
+10. Include project architecture questions
+11. Include problem-solving questions
+12. Include project deep-dive questions
+13. AVOID generic business-domain questions unless explicitly in the job posting
+14. Focus on evidence gap areas — ask questions that test skills where the CV shows Weak or Missing proof
 
 Return ONLY a JSON array of strings: ["question 1", "question 2", ...]`;
 
@@ -177,7 +194,14 @@ Return a JSON object with:
     "weaknesses": ["overall weakness across all answers", ...],
     "hiringRecommendation": "Strong Yes" | "Yes" | "Maybe" | "No" | "Strong No",
     "seniorFeedback": "detailed paragraph as if from a senior engineer reviewing this candidate"
-  }
+  },
+  "interviewRiskPrediction": [
+    {
+      "category": "technical" | "communication" | "confidence",
+      "risk": "high" | "medium" | "low",
+      "reason": "specific fail point and why it's likely to cause issues in a real interview"
+    }
+  ]
 }`;
 
   return JSON.parse(cleanJSON(await generateJSON(prompt)));

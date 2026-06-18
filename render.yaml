@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: careerpilot-ai
+    runtime: node
+    repo: https://github.com/izumi6803/CareerPilot-AI
+    plan: free
+    buildCommand: cd FE && npm install && npm run build && node -e "fs.cpSync('dist','../BE/public',{recursive:true})" && cd ../BE && npm install && npm run build
+    startCommand: cd BE && node dist/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000

@@ -143,6 +143,7 @@ export default function App() {
             jobDescription={jobDescription}
             cvText={cvText}
             missingSkills={analysis?.missingSkills ?? []}
+            evidenceGaps={analysis?.evidenceGaps}
             onBack={() => setStep(roadmap ? 'roadmap' : 'analysis')}
             onComplete={handleInterviewComplete}
           />

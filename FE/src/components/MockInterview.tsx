@@ -5,11 +5,12 @@ interface MockInterviewProps {
   jobDescription: string;
   cvText: string;
   missingSkills: string[];
+  evidenceGaps?: { skill: string; strength: string; reason: string }[];
   onBack: () => void;
   onComplete: (questions: string[], answers: string[]) => void;
 }
 
-export default function MockInterview({ jobDescription, cvText, missingSkills, onBack, onComplete }: MockInterviewProps) {
+export default function MockInterview({ jobDescription, cvText, missingSkills, evidenceGaps, onBack, onComplete }: MockInterviewProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -31,7 +32,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, o
     setLoading(true);
     setError('');
     try {
-      const result = await startInterview(jobDescription, cvText, missingSkills);
+      const result = await startInterview(jobDescription, cvText, missingSkills, evidenceGaps);
       setSessionId(result.sessionId);
       setQuestions([result.question]);
       setCurrentQ(0);

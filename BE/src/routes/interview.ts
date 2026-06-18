@@ -16,13 +16,13 @@ setInterval(() => {
 
 router.post('/start', async (req, res) => {
   try {
-    const { jobDescription, cvText, missingSkills } = req.body as { jobDescription: string; cvText?: string; missingSkills?: string[] };
+    const { jobDescription, cvText, missingSkills, evidenceGaps } = req.body as { jobDescription: string; cvText?: string; missingSkills?: string[]; evidenceGaps?: { skill: string; strength: string; reason: string }[] };
     if (!jobDescription) {
       res.status(400).json({ error: 'jobDescription is required' });
       return;
     }
 
-    const questions = await generateQuestions(jobDescription, cvText ?? '', missingSkills ?? [], 10);
+    const questions = await generateQuestions(jobDescription, cvText ?? '', missingSkills ?? [], 10, evidenceGaps);
     const sessionId = crypto.randomUUID();
 
     const session: InterviewSession & { _createdAt: number } = {

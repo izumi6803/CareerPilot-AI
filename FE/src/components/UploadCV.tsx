@@ -30,7 +30,7 @@ export default function UploadCV({ cvText, onCvText, onNext }: UploadCVProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Upload Your CV</h2>
-      <p className="text-gray-600 mb-6">Paste your CV text below or upload a .txt / .pdf file.</p>
+      <p className="text-gray-600 mb-6">Paste your CV text below or upload a .txt / .pdf file (text-based PDF only, not scanned images).</p>
 
       <div className="mb-4">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-indigo-400 transition-colors">

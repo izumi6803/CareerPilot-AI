@@ -1,5 +1,20 @@
 export type Step = 'upload-cv' | 'job-description' | 'analysis' | 'roadmap' | 'interview' | 'final-review';
 
+export type DecisionAction = 'APPLY_NOW' | 'IMPROVE_FIRST' | 'AVOID_FOR_NOW';
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+
+export interface DecisionEngine {
+  action: DecisionAction;
+  confidence: ConfidenceLevel;
+  reason: string;
+}
+
+export interface EvidenceGap {
+  skill: string;
+  strength: 'Strong' | 'Medium' | 'Weak' | 'Missing';
+  reason: string;
+}
+
 export interface AnalysisResponse {
   fitScore: number;
   fitSummary: string;
@@ -10,6 +25,8 @@ export interface AnalysisResponse {
   riskSignals: string[];
   cvImprovements: string[];
   mustKnowQuestions: string[];
+  decision: DecisionEngine;
+  evidenceGaps: EvidenceGap[];
 }
 
 export interface RoadmapWeek {
@@ -55,7 +72,14 @@ export interface OverallReview {
   seniorFeedback: string;
 }
 
+export interface InterviewRiskPrediction {
+  category: 'technical' | 'communication' | 'confidence';
+  risk: 'high' | 'medium' | 'low';
+  reason: string;
+}
+
 export interface MockReviewResponse {
   perQuestion: PerQuestionReview[];
   overall: OverallReview;
+  interviewRiskPrediction: InterviewRiskPrediction[];
 }

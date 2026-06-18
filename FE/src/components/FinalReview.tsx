@@ -1,4 +1,4 @@
-import type { MockReviewResponse } from '../types';
+import type { MockReviewResponse, InterviewRiskPrediction } from '../types';
 
 interface FinalReviewProps {
   review: MockReviewResponse;
@@ -15,6 +15,24 @@ function scoreBg(score: number): string {
   if (score >= 8) return 'bg-green-100';
   if (score >= 6) return 'bg-yellow-100';
   return 'bg-red-100';
+}
+
+function riskBadgeColor(category: string): string {
+  const styles: Record<string, string> = {
+    technical: 'bg-blue-100 text-blue-800 border-blue-200',
+    communication: 'bg-purple-100 text-purple-800 border-purple-200',
+    confidence: 'bg-orange-100 text-orange-800 border-orange-200',
+  };
+  return styles[category] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+}
+
+function riskLevelColor(risk: string): string {
+  const styles: Record<string, string> = {
+    high: 'text-red-700 bg-red-50 border-red-200',
+    medium: 'text-yellow-700 bg-yellow-50 border-yellow-200',
+    low: 'text-green-700 bg-green-50 border-green-200',
+  };
+  return styles[risk] ?? 'bg-gray-50 text-gray-700 border-gray-200';
 }
 
 function recommendationColor(rec: string): string {
@@ -94,6 +112,26 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
           <p className="text-sm text-gray-700 whitespace-pre-wrap">{overall.seniorFeedback}</p>
         </div>
       </div>
+
+      {review.interviewRiskPrediction && review.interviewRiskPrediction.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Interview Risk Prediction</h2>
+          <p className="text-xs text-gray-500 mb-3">Likely fail points in a real interview setting</p>
+          <div className="space-y-3">
+            {review.interviewRiskPrediction.map((item, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskBadgeColor(item.category)}`}>
+                  {item.category}
+                </span>
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskLevelColor(item.risk)}`}>
+                  {item.risk.toUpperCase()}
+                </span>
+                <p className="text-sm text-gray-700">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">Per-Question Breakdown</h3>

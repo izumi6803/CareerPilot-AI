@@ -1,4 +1,4 @@
-import type { AnalysisResponse } from '../types';
+import type { AnalysisResponse, EvidenceGap } from '../types';
 
 interface AnalysisResultProps {
   analysis: AnalysisResponse;
@@ -75,7 +75,44 @@ function ListCard({ title, items, color, compact }: { title: string; items: stri
   );
 }
 
+function EvidenceGapBar({ gap }: { gap: EvidenceGap }) {
+  const strengthColors: Record<string, string> = {
+    Strong: 'bg-green-500',
+    Medium: 'bg-yellow-500',
+    Weak: 'bg-orange-500',
+    Missing: 'bg-red-500',
+  };
+  const strengthWidth: Record<string, string> = {
+    Strong: 'w-full',
+    Medium: 'w-3/4',
+    Weak: 'w-2/5',
+    Missing: 'w-1/5',
+  };
+  return (
+    <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
+      <span className="text-sm text-gray-800 w-1/3 shrink-0 font-medium">{gap.skill}</span>
+      <div className="flex-1 bg-gray-200 rounded-full h-2">
+        <div className={`h-2 rounded-full ${strengthColors[gap.strength]} ${strengthWidth[gap.strength]}`} />
+      </div>
+      <span className={`text-xs font-bold w-16 text-right ${gap.strength === 'Strong' ? 'text-green-600' : gap.strength === 'Medium' ? 'text-yellow-600' : gap.strength === 'Weak' ? 'text-orange-600' : 'text-red-600'}`}>
+        {gap.strength}
+      </span>
+    </div>
+  );
+}
+
 export default function AnalysisResult({ analysis, onBack, onRoadmap, onInterview }: AnalysisResultProps) {
+  const decisionStyles: Record<string, string> = {
+    APPLY_NOW: 'bg-emerald-50 border-emerald-300 text-emerald-800',
+    IMPROVE_FIRST: 'bg-amber-50 border-amber-300 text-amber-800',
+    AVOID_FOR_NOW: 'bg-red-50 border-red-300 text-red-800',
+  };
+  const confidenceLabel: Record<string, string> = {
+    high: 'High Confidence',
+    medium: 'Medium Confidence',
+    low: 'Low Confidence',
+  };
+
   return (
     <div className="space-y-5">
       {/* Priority 1: Fit */}
@@ -89,7 +126,33 @@ export default function AnalysisResult({ analysis, onBack, onRoadmap, onIntervie
         </div>
       </div>
 
-      {/* Priority 2: Risk */}
+      {/* Priority 2: Decision Engine (visually highlighted) */}
+      <div className={`rounded-xl shadow-sm border-2 p-5 ${decisionStyles[analysis.decision.action] ?? 'bg-gray-50 border-gray-200'}`}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">Decision Engine</h2>
+          <span className="text-xs font-medium px-3 py-1 rounded-full bg-white/60 border">
+            {confidenceLabel[analysis.decision.confidence] ?? analysis.decision.confidence}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl font-bold">{analysis.decision.action.replace(/_/g, ' ')}</span>
+        </div>
+        <p className="text-sm opacity-80">{analysis.decision.reason}</p>
+      </div>
+
+      {/* Priority 3: Evidence Gap */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Evidence Gap Analysis</h2>
+        <p className="text-xs text-gray-500 mb-3">How well your CV proves each required skill</p>
+        {analysis.evidenceGaps.map((gap, i) => (
+          <div key={i}>
+            <EvidenceGapBar gap={gap} />
+            <p className="text-xs text-gray-500 ml-[33%] pb-2 -mt-1">{gap.reason}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Priority 4: Risk */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-gray-900">Job Posting Risk</h2>
@@ -98,7 +161,7 @@ export default function AnalysisResult({ analysis, onBack, onRoadmap, onIntervie
         <ListCard title="Risk Signals" items={analysis.riskSignals} color="amber" compact />
       </div>
 
-      {/* Priority 3: Before Applying Improvements */}
+      {/* Priority 5: Before Applying Improvements */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">Before Applying — CV Improvements</h2>
         <ListCard title="" items={analysis.cvImprovements} color="blue" compact />
