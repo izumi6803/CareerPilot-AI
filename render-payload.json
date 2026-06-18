@@ -1,0 +1,16 @@
+{
+  "type": "web_service",
+  "name": "careerpilot-ai",
+  "ownerId": "tea-d5u7neggjchc73bgfc20",
+  "repo": "https://github.com/izumi6803/CareerPilot-AI",
+  "branch": "master",
+  "autoDeploy": "yes",
+  "serviceDetails": {
+    "env": "node",
+    "envSpecificDetails": {
+      "buildCommand": "cd FE && npm install && npm run build && cd ../BE && npm install && npm run build",
+      "startCommand": "cd BE && node dist/index.js"
+    },
+    "plan": "free"
+  }
+}
