@@ -24,7 +24,7 @@ app.get('/api/health', (_req, res) => {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'public');
 app.use(express.static(publicDir));
-app.get('*', (_req, res) => {
+app.get('*path', (_req, res) => {
   const index = path.join(publicDir, 'index.html');
   res.sendFile(index);
 });
