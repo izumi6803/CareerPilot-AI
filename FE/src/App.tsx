@@ -16,8 +16,6 @@ export default function App() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [review, setReview] = useState<MockReviewResponse | null>(null);
-  const [interviewQ, setInterviewQ] = useState<string[]>([]);
-  const [interviewA, setInterviewA] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -52,8 +50,6 @@ export default function App() {
   };
 
   const handleInterviewComplete = async (questions: string[], answers: string[]) => {
-    setInterviewQ(questions);
-    setInterviewA(answers);
     setLoading(true);
     setError('');
     try {
@@ -74,8 +70,6 @@ export default function App() {
     setAnalysis(null);
     setRoadmap(null);
     setReview(null);
-    setInterviewQ([]);
-    setInterviewA([]);
   };
 
   const renderStep = () => {
@@ -122,7 +116,6 @@ export default function App() {
         return (
           <AnalysisResult
             analysis={analysis}
-            jobDescription={jobDescription}
             onBack={() => setStep('job-description')}
             onRoadmap={handleRoadmap}
             onInterview={() => setStep('interview')}

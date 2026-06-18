@@ -8,7 +8,7 @@
   "serviceDetails": {
     "env": "node",
     "envSpecificDetails": {
-      "buildCommand": "npm install && npm run build",
+      "buildCommand": "npm --prefix FE install && npm --prefix FE run build && node -e \"fs.cpSync('FE/dist','BE/public',{recursive:true})\" && npm --prefix BE install && npm --prefix BE run build",
       "startCommand": "cd BE && node dist/index.js"
     },
     "plan": "free"

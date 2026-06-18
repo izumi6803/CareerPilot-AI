@@ -1,4 +1,4 @@
-import type { MockReviewResponse, InterviewRiskPrediction } from '../types';
+import type { MockReviewResponse } from '../types';
 
 interface FinalReviewProps {
   review: MockReviewResponse;
