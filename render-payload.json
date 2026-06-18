@@ -8,7 +8,7 @@
   "serviceDetails": {
     "env": "node",
     "envSpecificDetails": {
-      "buildCommand": "cd FE && npm install && npm run build && cd ../BE && npm install && npm run build",
+      "buildCommand": "npm install && npm run build",
       "startCommand": "cd BE && node dist/index.js"
     },
     "plan": "free"

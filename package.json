@@ -2,9 +2,7 @@
   "name": "careerpilot-ai",
   "private": true,
   "scripts": {
-    "install:all": "cd FE && npm install && cd ../BE && npm install",
-    "build:all": "cd FE && npm run build && node -e \"fs.cpSync('dist','../BE/public',{recursive:true})\" && cd ../BE && npm run build",
-    "build": "npm run install:all && npm run build:all"
+    "build": "npm --prefix FE install && npm --prefix FE run build && node -e \"fs.cpSync('FE/dist','BE/public',{recursive:true})\" && npm --prefix BE install && npm --prefix BE run build"
   },
   "engines": {
     "node": ">=18.0.0"
