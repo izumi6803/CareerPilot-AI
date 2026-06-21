@@ -9,10 +9,75 @@ import FinalReview from './components/FinalReview';
 import { analyzeCV, generateRoadmap, submitMockReview } from './services/api';
 import type { Step, AnalysisResponse, RoadmapResponse, MockReviewResponse } from './types';
 
+const SAMPLE_CV = `John Doe
+Frontend Developer
+john.doe@email.com | (555) 123-4567
+
+SUMMARY
+Experienced Frontend Developer with 4+ years building React applications. Proficient in TypeScript, state management, and modern CSS.
+
+SKILLS
+React, TypeScript, JavaScript (ES6+), Redux, Node.js, Express, PostgreSQL, Git, Docker, AWS (basic), TailwindCSS, Jest, Cypress
+
+WORK EXPERIENCE
+Senior Frontend Developer — TechCorp (2021–Present)
+- Led migration of legacy Angular app to React, improving performance by 40%
+- Built reusable component library used by 3 product teams
+- Implemented CI/CD pipeline reducing deployment time from 2hrs to 15min
+- Mentored 2 junior developers through pair programming and code reviews
+
+Frontend Developer — StartupXYZ (2019–2021)
+- Developed responsive React web app serving 50k+ daily users
+- Integrated RESTful APIs and implemented real-time updates with WebSockets
+- Reduced bundle size by 35% through code splitting and lazy loading
+
+PROJECTS
+E-Commerce Dashboard — React, TypeScript, Redux, Chart.js
+- Real-time analytics dashboard with 10+ data visualization widgets
+- Implemented role-based access control and export functionality
+
+Task Manager API — Node.js, Express, PostgreSQL
+- RESTful API with JWT authentication and rate limiting
+- 95% test coverage with Jest and Supertest
+
+EDUCATION
+B.S. Computer Science — State University (2015–2019)`;
+
+const SAMPLE_JOB = `Senior Frontend Engineer
+
+Company: TechGrowth Inc.
+
+We are looking for a Senior Frontend Engineer to join our growing team.
+
+Requirements:
+- 5+ years of frontend development experience
+- Expert-level React knowledge with hooks and state management
+- Strong TypeScript skills
+- Experience with Node.js and RESTful APIs
+- Understanding of performance optimization
+- Experience with testing frameworks (Jest, React Testing Library)
+- Familiarity with CI/CD pipelines
+- Excellent communication and collaboration skills
+
+Nice to have:
+- Experience with Next.js or Remix
+- GraphQL experience
+- Docker and cloud deployment experience
+
+We offer:
+- Competitive salary: $130,000–$160,000
+- Remote-friendly culture
+- Health, dental, and vision insurance
+- 401(k) matching
+- Annual learning stipend`;
+
+const SAMPLE_COMPANY = 'TechGrowth Inc.';
+
 export default function App() {
   const [step, setStep] = useState<Step>('upload-cv');
   const [cvText, setCvText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [review, setReview] = useState<MockReviewResponse | null>(null);
@@ -23,7 +88,7 @@ export default function App() {
     setLoading(true);
     setError('');
     try {
-      const result = await analyzeCV(cvText, jobDescription);
+      const result = await analyzeCV(cvText, jobDescription, companyName || undefined);
       setAnalysis(result);
       setStep('analysis');
     } catch (err) {
@@ -31,6 +96,12 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUseSampleData = () => {
+    setCvText(SAMPLE_CV);
+    setJobDescription(SAMPLE_JOB);
+    setCompanyName(SAMPLE_COMPANY);
   };
 
   const handleRoadmap = async () => {
@@ -67,6 +138,7 @@ export default function App() {
     setStep('upload-cv');
     setCvText('');
     setJobDescription('');
+    setCompanyName('');
     setAnalysis(null);
     setRoadmap(null);
     setReview(null);
@@ -107,8 +179,11 @@ export default function App() {
           <JobDescription
             value={jobDescription}
             onChange={setJobDescription}
+            companyName={companyName}
+            onCompanyNameChange={setCompanyName}
             onBack={() => setStep('upload-cv')}
             onNext={handleAnalyze}
+            onUseSampleData={handleUseSampleData}
           />
         );
       case 'analysis':

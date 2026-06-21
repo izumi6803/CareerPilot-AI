@@ -16,11 +16,11 @@ export async function uploadCV(file: File): Promise<{ text: string }> {
   return handleResponse(await fetch(`${BASE}/upload-cv`, { method: 'POST', body: form }));
 }
 
-export async function analyzeCV(cvText: string, jobDescription: string): Promise<AnalysisResponse> {
+export async function analyzeCV(cvText: string, jobDescription: string, companyName?: string): Promise<AnalysisResponse> {
   return handleResponse(await fetch(`${BASE}/analyze`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cvText, jobDescription }),
+    body: JSON.stringify({ cvText, jobDescription, companyName }),
   }));
 }
 

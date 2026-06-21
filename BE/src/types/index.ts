@@ -1,6 +1,7 @@
 export interface AnalysisRequest {
   cvText: string;
   jobDescription: string;
+  companyName?: string;
 }
 
 export type DecisionAction = 'APPLY_NOW' | 'IMPROVE_FIRST' | 'AVOID_FOR_NOW';
@@ -18,6 +19,13 @@ export interface EvidenceGap {
   reason: string;
 }
 
+export interface CompanyContext {
+  onlinePresence: string[];
+  reviewSentiment: string[];
+  transparencySignals: string[];
+  possibleConcerns: string[];
+}
+
 export interface AnalysisResponse {
   fitScore: number;
   fitSummary: string;
@@ -30,6 +38,8 @@ export interface AnalysisResponse {
   mustKnowQuestions: string[];
   decision: DecisionEngine;
   evidenceGaps: EvidenceGap[];
+  companyContext: CompanyContext;
+  interviewRisk: 'low' | 'medium' | 'high';
 }
 
 export interface RoadmapRequest {

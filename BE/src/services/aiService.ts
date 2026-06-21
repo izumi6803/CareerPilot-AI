@@ -33,7 +33,15 @@ async function generateText(prompt: string): Promise<string> {
   return completion.choices[0]?.message?.content ?? '';
 }
 
-export async function analyzeCV(cvText: string, jobDescription: string): Promise<AnalysisResponse> {
+export async function analyzeCV(cvText: string, jobDescription: string, companyName?: string): Promise<AnalysisResponse> {
+  const companySection = companyName ? `\n\nCompany Name: ${companyName}\n\nCompany Context Instructions:
+- Analyze the company's online presence
+- Analyze review sentiment from employee reviews
+- Identify transparency signals in the job posting
+- Identify possible concerns a candidate should investigate further
+- NEVER make accusations or call the company a scam
+- Always include the disclaimer that the final decision belongs to the candidate` : '';
+
   const prompt = `You are an expert career coach and HR professional. Analyze this CV and job posting thoroughly.
 
 CV:
@@ -41,6 +49,7 @@ ${cvText.slice(0, 8000)}
 
 Job Posting:
 ${jobDescription.slice(0, 4000)}
+${companySection}
 
 Instructions:
 - Analyze the candidate's CV against the full job posting
@@ -52,6 +61,7 @@ Instructions:
 - Generate 10 must-know interview questions the candidate should prepare for this specific role
 - Use the Decision Engine to recommend whether the candidate should APPLY_NOW, IMPROVE_FIRST, or AVOID_FOR_NOW based on fit score, risk, and evidence gaps. Provide a confidence level (high/medium/low) and a clear reason.
 - Use the Evidence Gap Engine to evaluate EACH skill in the job posting. For each skill, classify the candidate's proof as Strong (CV clearly demonstrates this skill), Medium (some evidence but not fully proven), Weak (little evidence), or Missing (no evidence at all). Include reasoning.
+- Assess interview risk: predict how likely the candidate is to struggle in interviews for this role based on their evidence gaps and confidence signals. Classify as low (well-prepared), medium (some preparation needed), or high (significant preparation needed).
 
 Return a JSON object with:
 {
@@ -71,10 +81,24 @@ Return a JSON object with:
   },
   "evidenceGaps": [
     {"skill": "skill name", "strength": "Strong" | "Medium" | "Weak" | "Missing", "reason": "why this skill is or isn't proven by the CV"}
-  ]
+  ],
+  "companyContext": {
+    "onlinePresence": ["note about company website/social media/linkedIn presence"],
+    "reviewSentiment": ["note about employee review sentiment"],
+    "transparencySignals": ["note about salary transparency, clear requirements, honest description"],
+    "possibleConcerns": ["note about red flags to investigate further"]
+  },
+  "interviewRisk": "low" | "medium" | "high"
 }`;
 
-  return JSON.parse(cleanJSON(await generateJSON(prompt)));
+  const parsed = JSON.parse(cleanJSON(await generateJSON(prompt)));
+  if (!parsed.interviewRisk) {
+    parsed.interviewRisk = parsed.fitScore >= 70 ? 'low' : parsed.fitScore >= 40 ? 'medium' : 'high';
+  }
+  if (!parsed.companyContext) {
+    parsed.companyContext = { onlinePresence: [], reviewSentiment: [], transparencySignals: [], possibleConcerns: [] };
+  }
+  return parsed;
 }
 
 export async function generateRoadmap(missingSkills: string[], jobTitle: string): Promise<RoadmapResponse> {

@@ -9,14 +9,14 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 *
 
 router.post('/analyze', async (req, res) => {
   try {
-    const { cvText, jobDescription } = req.body as AnalysisRequest;
+    const { cvText, jobDescription, companyName } = req.body as AnalysisRequest;
 
     if (!cvText || !jobDescription) {
       res.status(400).json({ error: 'cvText and jobDescription are required' });
       return;
     }
 
-    const result = await analyzeCV(cvText, jobDescription);
+    const result = await analyzeCV(cvText, jobDescription, companyName);
     res.json(result);
   } catch (error) {
     console.error('Analysis error:', error);
