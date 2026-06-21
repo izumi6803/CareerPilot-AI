@@ -20,10 +20,12 @@ export interface EvidenceGap {
 }
 
 export interface CompanyContext {
-  onlinePresence: string[];
-  reviewSentiment: string[];
-  transparencySignals: string[];
-  possibleConcerns: string[];
+  onlinePresence: string;
+  publicSignals: string[];
+  engineeringVisibility: string;
+  transparency: string;
+  concerns: string[];
+  disclaimer: string;
 }
 
 export interface AnalysisResponse {
@@ -38,7 +40,7 @@ export interface AnalysisResponse {
   mustKnowQuestions: string[];
   decision: DecisionEngine;
   evidenceGaps: EvidenceGap[];
-  companyContext: CompanyContext;
+  companyContext: CompanyContext | null;
   interviewRisk: 'low' | 'medium' | 'high';
 }
 
