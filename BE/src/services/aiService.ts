@@ -56,14 +56,35 @@ ${companySection}
 Instructions:
 - Analyze the candidate's CV against the full job posting
 
-STRICT SCORING RULES:
-1. Detect job level and candidate level first.
-2. If the job requires 5+ years and the candidate is a student/fresher, fitScore must be between 0 and 35.
-3. If the job title contains Senior and the CV does not show senior-level professional experience, fitScore must not exceed 40.
-4. Shared keywords do not equal fit. React, TypeScript, Next.js in both CV and JD are only basic skill overlap.
-5. Senior-level fit requires evidence of: 5+ years professional frontend experience, production-scale ownership, advanced React/state management, testing frameworks, CI/CD, performance optimization, mentoring or technical leadership.
-6. If those are missing, classify the result as: Decision: AVOID_FOR_NOW or IMPROVE_FIRST, Reason: seniority mismatch.
-7. Be realistic and conservative. Do not overrate fresher candidates for senior roles.
+STRICT WEIGHTED FIT SCORING:
+Do not calculate fitScore only from skill overlap. Use this weighting:
+
+1. Skill Match (40%)
+   - Matching technologies and frameworks
+
+2. Seniority Match (35%)
+   - Years of experience
+   - Job level mismatch
+   - Professional maturity
+
+3. Production Experience (15%)
+   - Real-world shipped systems
+   - Scalability
+   - Testing
+   - CI/CD
+   - Performance optimization
+
+4. Responsibility Match (10%)
+   - Ownership
+   - Mentoring
+   - Architecture decisions
+   - Team collaboration
+
+Hard rules:
+- If candidate is Fresher and job is Senior, Seniority Match must be 0–20.
+- If required years >= 5 and candidate has <1 year, final fitScore cannot exceed 40.
+- If the candidate only has personal or academic projects, Production Experience cannot exceed 30.
+- Skill overlap alone must never produce high fit scores. A fresher with matching technologies is still not senior-ready.
 
 - Explain clearly why the candidate is a good fit or not a good fit, referencing the scoring rules above
 - Identify missing skills the candidate would need to learn
