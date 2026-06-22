@@ -88,6 +88,18 @@ function EvidenceGapBar({ gap }: { gap: EvidenceGap }) {
     Weak: 'w-2/5',
     Missing: 'w-1/5',
   };
+  const sourceLabel: Record<string, string> = {
+    skills: 'Skills',
+    project: 'Project',
+    experience: 'Experience',
+    none: 'Not found',
+  };
+  const sourceColors: Record<string, string> = {
+    skills: 'bg-gray-100 text-gray-600',
+    project: 'bg-blue-100 text-blue-700',
+    experience: 'bg-purple-100 text-purple-700',
+    none: 'bg-red-50 text-red-500',
+  };
   return (
     <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
       <span className="text-sm text-gray-800 w-1/3 shrink-0 font-medium">{gap.skill}</span>
@@ -96,6 +108,9 @@ function EvidenceGapBar({ gap }: { gap: EvidenceGap }) {
       </div>
       <span className={`text-xs font-bold w-16 text-right ${gap.strength === 'Strong' ? 'text-green-600' : gap.strength === 'Medium' ? 'text-yellow-600' : gap.strength === 'Weak' ? 'text-orange-600' : 'text-red-600'}`}>
         {gap.strength}
+      </span>
+      <span className={`text-xs px-1.5 py-0.5 rounded ${sourceColors[gap.evidenceSource] ?? 'bg-gray-100 text-gray-500'}`}>
+        {sourceLabel[gap.evidenceSource] ?? gap.evidenceSource}
       </span>
     </div>
   );

@@ -71,7 +71,13 @@ STRICT SCORING RULES:
 - Suggest specific CV improvements the candidate should make before applying
 - Generate 10 must-know interview questions the candidate should prepare for this specific role
 - Use the Decision Engine to recommend whether the candidate should APPLY_NOW, IMPROVE_FIRST, or AVOID_FOR_NOW based on fit score, risk, and evidence gaps. Provide a confidence level (high/medium/low) and a clear reason.
-- Use the Evidence Gap Engine to evaluate EACH skill in the job posting. For each skill, classify the candidate's proof as Strong (CV clearly demonstrates this skill), Medium (some evidence but not fully proven), Weak (little evidence), or Missing (no evidence at all). Include reasoning.
+- Use the Evidence Gap Engine to evaluate EACH skill in the job posting. Follow strict evidence-based classification:
+  **Strong** = explicitly mentioned AND used in a project or work experience
+  **Medium** = explicitly mentioned but only listed in skills section with no project/work proof
+  **Weak** = indirectly related or inferred from context
+  **Missing** = not mentioned anywhere in the CV
+  Never infer tools not explicitly present. If Jest is not in CV, testing cannot be Strong. If CI/CD is not mentioned, do not mark Medium. If Next.js exists in skills/projects, it cannot be Missing.
+  For each skill, also identify the evidenceSource: "skills" (mentioned in skills list only), "project" (used in a project), "experience" (used in work experience), or "none" (not found).
 - Assess interview risk: predict how likely the candidate is to struggle in interviews for this role based on their evidence gaps and confidence signals. Classify as low (well-prepared), medium (some preparation needed), or high (significant preparation needed).
 - If no company name was provided above, set companyContext to null.
 
@@ -92,7 +98,7 @@ Return a JSON object with:
     "reason": "explanation for the decision"
   },
   "evidenceGaps": [
-    {"skill": "skill name", "strength": "Strong" | "Medium" | "Weak" | "Missing", "reason": "why this skill is or isn't proven by the CV"}
+    {"skill": "skill name", "strength": "Strong" | "Medium" | "Weak" | "Missing", "reason": "why this skill is or isn't proven by the CV", "evidenceSource": "skills" | "project" | "experience" | "none"}
   ],
   "companyContext": {
     "onlinePresence": "description of company website/social media/linkedIn presence",

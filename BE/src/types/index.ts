@@ -17,6 +17,7 @@ export interface EvidenceGap {
   skill: string;
   strength: 'Strong' | 'Medium' | 'Weak' | 'Missing';
   reason: string;
+  evidenceSource: 'skills' | 'project' | 'experience' | 'none';
 }
 
 export interface CompanyContext {
