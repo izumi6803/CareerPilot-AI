@@ -34,23 +34,31 @@ export default function Header({ currentStep }: HeaderProps) {
             return (
               <div key={step.key} className="flex items-center flex-1">
                 <div className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
-                    isCompleted ? 'bg-indigo-600 text-white' :
-                    isCurrent ? 'bg-indigo-600 text-white ring-2 ring-indigo-200' :
-                    'bg-gray-200 text-gray-500'
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    isCompleted ? 'bg-indigo-600 text-white shadow-sm' :
+                    isCurrent ? 'bg-indigo-600 text-white ring-2 ring-indigo-300 ring-offset-1' :
+                    'bg-gray-100 text-gray-400 border border-gray-200'
                   }`}>
                     {isCompleted ? (
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     ) : i + 1}
                   </div>
-                  <span className={`text-xs font-medium hidden sm:block ${isCurrent ? 'text-indigo-600' : isCompleted ? 'text-gray-700' : 'text-gray-400'}`}>
+                  <span className={`text-xs font-medium hidden sm:block ${
+                    isCurrent ? 'text-indigo-700 font-semibold' :
+                    isCompleted ? 'text-gray-700' :
+                    'text-gray-400'
+                  }`}>
                     {step.label}
                   </span>
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-2 ${i < currentIdx ? 'bg-indigo-600' : 'bg-gray-200'}`} />
+                  <div className={`flex-1 h-0.5 mx-2 rounded-full ${
+                    i < currentIdx ? 'bg-indigo-500' :
+                    i === currentIdx ? 'bg-indigo-200' :
+                    'bg-gray-100'
+                  }`} />
                 )}
               </div>
             );

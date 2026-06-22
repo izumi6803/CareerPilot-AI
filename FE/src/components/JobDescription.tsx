@@ -16,13 +16,23 @@ export default function JobDescription({ value, onChange, companyName, onCompany
           <h2 className="text-xl font-semibold text-gray-900">Job Posting</h2>
           <p className="text-gray-600 mt-1">Paste the full job posting you want to target.</p>
         </div>
-        <button
-          type="button"
-          onClick={onUseSampleData}
-          className="text-sm px-3 py-1.5 rounded-lg font-medium text-indigo-600 border border-indigo-300 hover:bg-indigo-50 transition-colors"
-        >
-          Use Sample Data
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled
+            className="text-sm px-3 py-1.5 rounded-lg font-medium text-gray-400 border border-gray-200 cursor-not-allowed"
+            title="Coming soon"
+          >
+            Paste Job URL (coming soon)
+          </button>
+          <button
+            type="button"
+            onClick={onUseSampleData}
+            className="text-sm px-3 py-1.5 rounded-lg font-medium text-indigo-600 border border-indigo-300 hover:bg-indigo-50 transition-colors"
+          >
+            Use Sample Data
+          </button>
+        </div>
       </div>
 
       <div className="mb-4">
@@ -34,7 +44,7 @@ export default function JobDescription({ value, onChange, companyName, onCompany
           type="text"
           value={companyName}
           onChange={(e) => onCompanyNameChange(e.target.value)}
-          placeholder="e.g. TechGrowth Inc."
+          placeholder="e.g. bbv Vietnam"
           className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
         <p className="text-xs text-gray-400 mt-1">Used for company context insights (online presence, reviews, etc.)</p>

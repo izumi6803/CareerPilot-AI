@@ -34,6 +34,8 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isLast = currentQ >= TOTAL - 1;
@@ -42,6 +44,21 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentQ, loading]);
+
+  useEffect(() => {
+    if (sessionId && !allDone) {
+      timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [sessionId, allDone]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
 
   const handleStart = async () => {
     setLoading(true);
@@ -68,6 +85,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
       setQuestions(all);
       setCurrentQ(0);
       setSessionId('local');
+      setElapsed(0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start interview');
     } finally {
@@ -83,9 +101,16 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
     setCurrentQ((prev) => prev + 1);
   };
 
+  const handleSkip = () => {
+    setAnswers((prev) => [...prev, '(skipped)']);
+    setCurrentQ((prev) => prev + 1);
+  };
+
   const handleSubmitAll = () => {
     onComplete(questions, answers);
   };
+
+  const wordCount = answer.trim() ? answer.trim().split(/\s+/).length : 0;
 
   if (!sessionId) {
     return (
@@ -126,7 +151,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">All Questions Answered</h2>
-        <p className="text-gray-600 mb-2">You have completed all {TOTAL} questions.</p>
+        <p className="text-gray-600 mb-1">You have completed all {TOTAL} questions.</p>
         <p className="text-sm text-gray-500 mb-6">Submit your answers for a detailed AI evaluation.</p>
 
         <div className="flex justify-center gap-3">
@@ -145,48 +170,72 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Mock Interview</h2>
-        <span className="text-sm text-gray-500">Question {currentQ + 1} of {TOTAL}</span>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold text-gray-900">Mock Interview</h2>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400 font-mono">{formatTime(elapsed)}</span>
+          <span className="text-sm text-gray-500 font-medium">Question {currentQ + 1} / {TOTAL}</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="bg-gray-100 rounded-full h-1.5 mb-4">
+        <div className="bg-indigo-500 h-1.5 rounded-full transition-all" style={{ width: `${((currentQ + 1) / TOTAL) * 100}%` }} />
       </div>
 
       {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
+      {/* Question */}
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <p className="text-sm font-medium text-gray-500 mb-1">Question {currentQ + 1}:</p>
         <p className="text-gray-900">{questions[currentQ]}</p>
       </div>
 
-      <div className="h-48 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+      {/* Previous answers */}
+      <div className="h-40 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
         {answers.map((a, i) => (
-          <div key={i} className="mb-3 last:mb-0">
-            <p className="text-xs font-medium text-gray-400 mb-1">Q{i + 1}</p>
+          <div key={i} className="mb-2 last:mb-0">
+            <p className="text-xs font-medium text-gray-400 mb-0.5">Q{i + 1}</p>
             <div className="bg-indigo-50 rounded-lg px-3 py-2 text-sm text-gray-800">
-              <p className="whitespace-pre-wrap">{a}</p>
+              <p className="whitespace-pre-wrap">{a === '(skipped)' ? <span className="italic text-gray-400">Skipped</span> : a}</p>
             </div>
           </div>
         ))}
         {answers.length === 0 && (
-          <p className="text-sm text-gray-400 text-center mt-16">Your answers will appear here</p>
+          <p className="text-sm text-gray-400 text-center mt-12">Your answers will appear here</p>
         )}
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex gap-2">
-        <textarea
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Type your answer..."
-          rows={2}
-          className="flex-1 border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-        />
-        <button
-          onClick={handleNext}
-          disabled={!answer.trim() || loading}
-          className="px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors self-end"
-        >
-          {loading ? 'Sending...' : isLast ? 'Finish' : 'Next'}
-        </button>
+      {/* Input */}
+      <div className="flex gap-2 mb-2">
+        <div className="flex-1 relative">
+          <textarea
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            placeholder="Type your answer..."
+            rows={2}
+            className="w-full border border-gray-300 rounded-lg p-3 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+          />
+          <span className="absolute bottom-2 right-3 text-xs text-gray-400">{wordCount} words</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={handleNext}
+            disabled={!answer.trim() || loading}
+            className="px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm"
+          >
+            {loading ? '...' : isLast ? 'Finish' : 'Next'}
+          </button>
+          <button
+            onClick={handleSkip}
+            disabled={loading}
+            className="px-4 py-1.5 rounded-lg font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors text-xs"
+          >
+            Skip
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,8 @@ import type { MockReviewResponse } from '../types';
 interface FinalReviewProps {
   review: MockReviewResponse;
   onRestart: () => void;
+  onChangeJob: () => void;
+  onChangeCV: () => void;
 }
 
 function scoreColor(score: number): string {
@@ -56,11 +58,12 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
   );
 }
 
-export default function FinalReview({ review, onRestart }: FinalReviewProps) {
+export default function FinalReview({ review, onRestart, onChangeJob, onChangeCV }: FinalReviewProps) {
   const { perQuestion, overall } = review;
 
   return (
     <div className="space-y-6">
+      {/* A. Performance Summary Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Interview Evaluation</h2>
 
@@ -76,65 +79,46 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
           </div>
         </div>
 
-        <div className="space-y-2 mb-6">
+        <div className="space-y-2">
           <ScoreBar label="Technical Score" score={overall.technicalScore} />
           <ScoreBar label="Communication Score" score={overall.communicationScore} />
           <ScoreBar label="Confidence Score" score={overall.confidenceScore} />
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h3 className="font-semibold text-green-800 mb-2">Strengths</h3>
-            <ul className="space-y-1">
-              {overall.strengths.map((s, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-green-700">
-                  <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <h3 className="font-semibold text-red-800 mb-2">Weaknesses</h3>
-            <ul className="space-y-1">
-              {overall.weaknesses.map((w, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-red-700">
-                  <span className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                  {w}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="font-semibold text-gray-800 mb-2">Senior Engineer Feedback</h3>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{overall.seniorFeedback}</p>
+      {/* B. Strengths Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Strengths</h2>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <ul className="space-y-1">
+            {overall.strengths.map((s, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-green-700">
+                <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                {s}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
-      {review.interviewRiskPrediction && review.interviewRiskPrediction.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Interview Risk Prediction</h2>
-          <p className="text-xs text-gray-500 mb-3">Likely fail points in a real interview setting</p>
-          <div className="space-y-3">
-            {review.interviewRiskPrediction.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
-                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskBadgeColor(item.category)}`}>
-                  {item.category}
-                </span>
-                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskLevelColor(item.risk)}`}>
-                  {item.risk.toUpperCase()}
-                </span>
-                <p className="text-sm text-gray-700">{item.reason}</p>
-              </div>
+      {/* C. Weaknesses Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Weaknesses</h2>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <ul className="space-y-1">
+            {overall.weaknesses.map((w, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-red-700">
+                <span className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                {w}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-      )}
+      </div>
 
+      {/* D. Suggested Better Answers */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Per-Question Breakdown</h3>
+        <h2 className="text-lg font-semibold text-gray-900">Suggested Better Answers</h2>
         {perQuestion.map((item, i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <div className="flex items-start justify-between mb-3">
@@ -192,13 +176,59 @@ export default function FinalReview({ review, onRestart }: FinalReviewProps) {
         ))}
       </div>
 
-      <div className="flex justify-center">
-        <button
-          onClick={onRestart}
-          className="px-6 py-2 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-        >
-          Start Over
-        </button>
+      {/* Senior feedback */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Senior Engineer Feedback</h2>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <p className="text-sm text-gray-700 whitespace-pre-wrap">{overall.seniorFeedback}</p>
+        </div>
+      </div>
+
+      {/* Interview Risk Prediction */}
+      {review.interviewRiskPrediction && review.interviewRiskPrediction.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Interview Risk Prediction</h2>
+          <p className="text-xs text-gray-500 mb-3">Likely fail points in a real interview setting</p>
+          <div className="space-y-3">
+            {review.interviewRiskPrediction.map((item, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskBadgeColor(item.category)}`}>
+                  {item.category}
+                </span>
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border ${riskLevelColor(item.risk)}`}>
+                  {item.risk.toUpperCase()}
+                </span>
+                <p className="text-sm text-gray-700">{item.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Final CTA */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">What's Next?</h2>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={onChangeJob}
+            className="px-5 py-2 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          >
+            Try Another Job
+          </button>
+          <button
+            onClick={onChangeCV}
+            className="px-5 py-2 rounded-lg font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+          >
+            Upload Another CV
+          </button>
+          <button
+            disabled
+            className="px-5 py-2 rounded-lg font-medium text-gray-400 border border-gray-200 cursor-not-allowed"
+            title="Coming soon"
+          >
+            Book Senior Review (coming soon)
+          </button>
+        </div>
       </div>
     </div>
   );

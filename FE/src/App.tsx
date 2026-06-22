@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import UploadCV from './components/UploadCV';
 import JobDescription from './components/JobDescription';
@@ -73,6 +73,29 @@ We offer:
 
 const SAMPLE_COMPANY = 'TechGrowth Inc.';
 
+const LOADING_MESSAGES: Record<string, string[]> = {
+  analysis: [
+    'Analyzing CV...',
+    'Matching skills...',
+    'Checking seniority...',
+    'Calculating fit score...',
+  ],
+  roadmap: [
+    'Building roadmap...',
+    'Planning milestones...',
+    'Finding resources...',
+    'Preparing learning path...',
+  ],
+  'final-review': [
+    'Evaluating answers...',
+    'Checking technical depth...',
+    'Assessing communication...',
+    'Preparing feedback...',
+  ],
+};
+
+const DEFAULT_MESSAGES = ['Processing...'];
+
 export default function App() {
   const [step, setStep] = useState<Step>('upload-cv');
   const [cvText, setCvText] = useState('');
@@ -83,6 +106,21 @@ export default function App() {
   const [review, setReview] = useState<MockReviewResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
+  const loadingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (loading) {
+      const msgs = LOADING_MESSAGES[step] ?? DEFAULT_MESSAGES;
+      setLoadingMsgIdx(0);
+      loadingTimer.current = setInterval(() => {
+        setLoadingMsgIdx((prev) => (prev + 1) % msgs.length);
+      }, 2500);
+    }
+    return () => {
+      if (loadingTimer.current) clearInterval(loadingTimer.current);
+    };
+  }, [loading, step]);
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -92,7 +130,7 @@ export default function App() {
       setAnalysis(result);
       setStep('analysis');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed');
+      setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -143,27 +181,46 @@ export default function App() {
     setReview(null);
   };
 
+  const handleChangeJob = () => {
+    setJobDescription('');
+    setCompanyName('');
+    setAnalysis(null);
+    setRoadmap(null);
+    setReview(null);
+    setStep('job-description');
+  };
+
+  const handleChangeCV = () => {
+    setCvText('');
+    setJobDescription('');
+    setCompanyName('');
+    setAnalysis(null);
+    setRoadmap(null);
+    setReview(null);
+    setStep('upload-cv');
+  };
+
   const renderStep = () => {
     if (loading) {
+      const msgs = LOADING_MESSAGES[step] ?? DEFAULT_MESSAGES;
       return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <div className="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-gray-600">
-            {step === 'analysis' ? 'Analyzing your CV against the job posting...' :
-             step === 'roadmap' ? 'Generating your learning roadmap...' :
-             step === 'final-review' ? 'Evaluating your interview answers...' :
-             'Processing...'}
-          </p>
+          <div className="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-6" />
+          <div className="h-6">
+            <p key={loadingMsgIdx} className="text-gray-600 animate-pulse transition-opacity">
+              {msgs[loadingMsgIdx]}
+            </p>
+          </div>
         </div>
       );
     }
 
     if (error) {
       return (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-800 mb-2">{error}</p>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
+          <p className="text-amber-800 mb-2">{error}</p>
           <button onClick={() => setError('')}
-            className="text-red-600 underline text-sm hover:text-red-800">
+            className="text-amber-600 underline text-sm hover:text-amber-800">
             Dismiss
           </button>
         </div>
@@ -218,7 +275,14 @@ export default function App() {
         );
       case 'final-review':
         if (!review) return null;
-        return <FinalReview review={review} onRestart={handleRestart} />;
+        return (
+          <FinalReview
+            review={review}
+            onRestart={handleRestart}
+            onChangeJob={handleChangeJob}
+            onChangeCV={handleChangeCV}
+          />
+        );
     }
   };
 

@@ -21,7 +21,12 @@ export default function UploadCV({ cvText, onCvText, onNext }: UploadCVProps) {
       const result = await uploadCV(file);
       onCvText(result.text);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      const msg = err instanceof Error ? err.message : 'Upload failed';
+      if (msg.includes('scanned') || msg.includes('image-based')) {
+        setError('Could not extract text from this PDF. Please upload a text-based PDF or paste manually.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setUploading(false);
     }
@@ -30,7 +35,7 @@ export default function UploadCV({ cvText, onCvText, onNext }: UploadCVProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Upload Your CV</h2>
-      <p className="text-gray-600 mb-6">Paste your CV text below or upload a .txt / .pdf file (text-based PDF only, not scanned images).</p>
+      <p className="text-gray-600 mb-4">Paste your CV text below or upload a file.</p>
 
       <div className="mb-4">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-indigo-400 transition-colors">
@@ -51,7 +56,17 @@ export default function UploadCV({ cvText, onCvText, onNext }: UploadCVProps) {
           </button>
           <p className="text-sm text-gray-500 mt-1">or paste your CV below</p>
         </div>
-        {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        {error && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2 text-sm text-amber-800">
+            {error}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-gray-50 rounded-lg p-3 mb-4 text-xs text-gray-500 space-y-1">
+        <p><span className="font-medium text-gray-700">Supported:</span> PDF (text-based), TXT</p>
+        <p><span className="font-medium text-gray-700">Coming soon:</span> OCR support for scanned documents</p>
+        <p className="pt-1 text-gray-400 italic">Your file is processed securely and not stored permanently.</p>
       </div>
 
       <textarea
