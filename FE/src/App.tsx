@@ -211,6 +211,7 @@ export default function App() {
             cvText={cvText}
             missingSkills={analysis?.missingSkills ?? []}
             evidenceGaps={analysis?.evidenceGaps}
+            mustKnowQuestions={analysis?.mustKnowQuestions ?? []}
             onBack={() => setStep(roadmap ? 'roadmap' : 'analysis')}
             onComplete={handleInterviewComplete}
           />

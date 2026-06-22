@@ -203,7 +203,12 @@ Return ONLY a JSON array of strings: ["question 1", "question 2", ...]`;
 
   const text = await generateJSON(prompt);
   const parsed = JSON.parse(cleanJSON(text));
-  return Array.isArray(parsed) ? parsed : (parsed.questions ?? []);
+  const raw = Array.isArray(parsed) ? parsed : (parsed.questions ?? []);
+  const filtered = raw.filter((q: unknown) => q && typeof q === 'string' && q.trim().length > 0) as string[];
+  while (filtered.length < count) {
+    filtered.push(`Describe your experience with a technical challenge you faced and how you resolved it.`);
+  }
+  return filtered.slice(0, count);
 }
 
 export async function mockReview(

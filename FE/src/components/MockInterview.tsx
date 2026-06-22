@@ -1,16 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
-import { startInterview, answerInterview } from '../services/api';
+import { startInterview } from '../services/api';
 
 interface MockInterviewProps {
   jobDescription: string;
   cvText: string;
   missingSkills: string[];
   evidenceGaps?: { skill: string; strength: string; reason: string }[];
+  mustKnowQuestions: string[];
   onBack: () => void;
   onComplete: (questions: string[], answers: string[]) => void;
 }
 
-export default function MockInterview({ jobDescription, cvText, missingSkills, evidenceGaps, onBack, onComplete }: MockInterviewProps) {
+const TOTAL = 10;
+
+const FALLBACK_QUESTIONS: string[] = [
+  'Explain how React hooks work and how they differ from class lifecycle methods.',
+  'Describe how TypeScript interfaces and types differ and when to use each.',
+  'How do you optimize the performance of a React application?',
+  'Explain the event loop in JavaScript and how async/await works.',
+  'Describe your experience with testing frameworks and how you ensure code quality.',
+  'Walk me through a CI/CD pipeline you have set up or worked with.',
+  'Describe a project where you had to make an architecture decision and own the outcome.',
+  'How do you handle state management in large-scale React applications?',
+  'Explain how you would debug a production issue in a frontend application.',
+  'Describe a time you mentored someone or led a technical initiative.',
+];
+
+export default function MockInterview({ jobDescription, cvText, missingSkills, evidenceGaps, mustKnowQuestions, onBack, onComplete }: MockInterviewProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -20,9 +36,8 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
   const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const totalQ = questions.length;
-  const isLast = currentQ >= totalQ - 1;
-  const allDone = currentQ >= totalQ && totalQ > 0;
+  const isLast = currentQ >= TOTAL - 1;
+  const allDone = currentQ >= TOTAL && TOTAL > 0;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,10 +47,27 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
     setLoading(true);
     setError('');
     try {
-      const result = await startInterview(jobDescription, cvText, missingSkills, evidenceGaps);
-      setSessionId(result.sessionId);
-      setQuestions([result.question]);
+      const valid = mustKnowQuestions.filter(q => q && q.trim().length > 0);
+      let all: string[] = valid.slice(0, TOTAL);
+
+      if (all.length < TOTAL) {
+        try {
+          const result = await startInterview(jobDescription, cvText, missingSkills, evidenceGaps);
+          if (result.question && result.question.trim().length > 0) {
+            all.push(result.question);
+          }
+        } catch {
+          // API failed, will use fallback questions
+        }
+      }
+
+      while (all.length < TOTAL) {
+        all.push(FALLBACK_QUESTIONS[all.length % FALLBACK_QUESTIONS.length]);
+      }
+
+      setQuestions(all);
       setCurrentQ(0);
+      setSessionId('local');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start interview');
     } finally {
@@ -43,26 +75,12 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
     }
   };
 
-  const handleNext = async () => {
-    if (!answer.trim() || !sessionId) return;
+  const handleNext = () => {
+    if (!answer.trim()) return;
     const userAnswer = answer.trim();
     setAnswer('');
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await answerInterview(sessionId, userAnswer);
-      setAnswers((prev) => [...prev, userAnswer]);
-      setCurrentQ((prev) => prev + 1);
-
-      if (result.nextQuestion) {
-        setQuestions((prev) => [...prev, result.nextQuestion!]);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save answer');
-    } finally {
-      setLoading(false);
-    }
+    setAnswers((prev) => [...prev, userAnswer]);
+    setCurrentQ((prev) => prev + 1);
   };
 
   const handleSubmitAll = () => {
@@ -73,7 +91,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Mock Interview</h2>
-        <p className="text-gray-600 mb-6">You will answer 10 technical questions tailored to the job. Your answers will be reviewed at the end.</p>
+        <p className="text-gray-600 mb-6">You will answer {TOTAL} technical questions tailored to the job. Your answers will be reviewed at the end.</p>
 
         <div className="bg-indigo-50 rounded-lg p-4 mb-6 text-left text-sm text-gray-700">
           <p className="font-medium text-indigo-800 mb-1">Tips:</p>
@@ -108,7 +126,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">All Questions Answered</h2>
-        <p className="text-gray-600 mb-2">You have completed all {totalQ} questions.</p>
+        <p className="text-gray-600 mb-2">You have completed all {TOTAL} questions.</p>
         <p className="text-sm text-gray-500 mb-6">Submit your answers for a detailed AI evaluation.</p>
 
         <div className="flex justify-center gap-3">
@@ -129,7 +147,7 @@ export default function MockInterview({ jobDescription, cvText, missingSkills, e
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Mock Interview</h2>
-        <span className="text-sm text-gray-500">Question {currentQ + 1} of {totalQ || '?'}</span>
+        <span className="text-sm text-gray-500">Question {currentQ + 1} of {TOTAL}</span>
       </div>
 
       {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
