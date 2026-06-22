@@ -56,18 +56,14 @@ ${companySection}
 Instructions:
 - Analyze the candidate's CV against the full job posting
 
-SCORING RULES - MUST FOLLOW STRICTLY:
-1. First detect the job seniority level: Intern / Fresher, Junior, Mid-level, Senior, Lead / Manager.
-2. Then detect the candidate seniority level from the CV: Student / Fresher, Junior, Mid-level, Senior.
-3. Apply seniority mismatch penalty:
-   - If job is Senior and candidate is Fresher/Student, fitScore must be 0–35.
-   - If job is Mid-level and candidate is Fresher/Student, fitScore must be 20–45.
-   - If job requires 3+ years experience and candidate has no professional experience, fitScore must not exceed 40.
-   - If job requires leadership, architecture ownership, mentoring, or production-scale system experience and the CV does not show it, fitScore must not exceed 45.
-4. Do not overrate based only on shared keywords. Example: if both CV and JD mention React, this does NOT mean strong fit. Check evidence: years of experience, project complexity, production experience, ownership level, team collaboration, architecture responsibility.
-5. Separate skill familiarity from job readiness: Familiar with technology ≠ ready for senior role. School/project experience ≠ professional senior-level experience.
-6. Missing senior-level evidence should strongly reduce the score.
-7. Score bands: 80–100 = strong fit (can likely interview now), 60–79 = partial fit (needs improvement), 40–59 = weak fit, 0–39 = major mismatch.
+STRICT SCORING RULES:
+1. Detect job level and candidate level first.
+2. If the job requires 5+ years and the candidate is a student/fresher, fitScore must be between 0 and 35.
+3. If the job title contains Senior and the CV does not show senior-level professional experience, fitScore must not exceed 40.
+4. Shared keywords do not equal fit. React, TypeScript, Next.js in both CV and JD are only basic skill overlap.
+5. Senior-level fit requires evidence of: 5+ years professional frontend experience, production-scale ownership, advanced React/state management, testing frameworks, CI/CD, performance optimization, mentoring or technical leadership.
+6. If those are missing, classify the result as: Decision: AVOID_FOR_NOW or IMPROVE_FIRST, Reason: seniority mismatch.
+7. Be realistic and conservative. Do not overrate fresher candidates for senior roles.
 
 - Explain clearly why the candidate is a good fit or not a good fit, referencing the scoring rules above
 - Identify missing skills the candidate would need to learn
