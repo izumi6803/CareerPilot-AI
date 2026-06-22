@@ -98,8 +98,7 @@ export default function App() {
     }
   };
 
-  const handleUseSampleData = () => {
-    setCvText(SAMPLE_CV);
+  const loadSampleJobData = () => {
     setJobDescription(SAMPLE_JOB);
     setCompanyName(SAMPLE_COMPANY);
   };
@@ -183,7 +182,7 @@ export default function App() {
             onCompanyNameChange={setCompanyName}
             onBack={() => setStep('upload-cv')}
             onNext={handleAnalyze}
-            onUseSampleData={handleUseSampleData}
+            onUseSampleData={loadSampleJobData}
           />
         );
       case 'analysis':
