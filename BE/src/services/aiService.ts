@@ -55,8 +55,21 @@ ${companySection}
 
 Instructions:
 - Analyze the candidate's CV against the full job posting
-- Calculate a fit score (0-100) based on skill match, experience level, and requirements
-- Explain clearly why the candidate is a good fit or not a good fit
+
+SCORING RULES - MUST FOLLOW STRICTLY:
+1. First detect the job seniority level: Intern / Fresher, Junior, Mid-level, Senior, Lead / Manager.
+2. Then detect the candidate seniority level from the CV: Student / Fresher, Junior, Mid-level, Senior.
+3. Apply seniority mismatch penalty:
+   - If job is Senior and candidate is Fresher/Student, fitScore must be 0–35.
+   - If job is Mid-level and candidate is Fresher/Student, fitScore must be 20–45.
+   - If job requires 3+ years experience and candidate has no professional experience, fitScore must not exceed 40.
+   - If job requires leadership, architecture ownership, mentoring, or production-scale system experience and the CV does not show it, fitScore must not exceed 45.
+4. Do not overrate based only on shared keywords. Example: if both CV and JD mention React, this does NOT mean strong fit. Check evidence: years of experience, project complexity, production experience, ownership level, team collaboration, architecture responsibility.
+5. Separate skill familiarity from job readiness: Familiar with technology ≠ ready for senior role. School/project experience ≠ professional senior-level experience.
+6. Missing senior-level evidence should strongly reduce the score.
+7. Score bands: 80–100 = strong fit (can likely interview now), 60–79 = partial fit (needs improvement), 40–59 = weak fit, 0–39 = major mismatch.
+
+- Explain clearly why the candidate is a good fit or not a good fit, referencing the scoring rules above
 - Identify missing skills the candidate would need to learn
 - Detect risk signals in the job posting itself (e.g. salary seems unrealistic for the role, vague requirements, suspicious urgency, weak company description, too many requirements for the level). NEVER call any company a scam. Only classify risk as low / medium / high.
 - Suggest specific CV improvements the candidate should make before applying
